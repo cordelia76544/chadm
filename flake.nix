@@ -20,14 +20,8 @@
           package = self.packages.${system}.default;
           module = assert import ./nix/eval-tests.nix { inherit pkgs; };
             pkgs.runCommand "chadm-module-evaluation" { } "touch $out";
-          host-setup = pkgs.runCommand "chadm-host-setup-tests" {
-            nativeBuildInputs = [ pkgs.python3 ];
-          } ''
-            export CHADM_TEST_BINARY=${self.packages.${system}.default}/bin/chadm
-            export PYTHONDONTWRITEBYTECODE=1
-            ${pkgs.python3}/bin/python3 ${./nix}/test_host_setup.py
-            touch "$out"
-          '';
+          # Host setup touches raw ownership xattrs: exercise it in the VM too.
+          host-setup = self.checks.${system}.deployment;
           deployment = import ./nix/tests.nix { inherit pkgs; };
         });
     };

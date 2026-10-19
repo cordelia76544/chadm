@@ -1081,6 +1081,7 @@ mod tests {
                 data_dir: root.join("data"),
                 runtime_dir: root.join("run"),
                 firmware: Some(firmware),
+                default_bridge: None,
                 cloud_hypervisor: "/bin/true".into(),
             };
             repo::create(&host, "local", &root.join("storage")).unwrap();

@@ -940,3 +940,24 @@ chadm repo create --help
 当前未实现 LVM、registry、独立 clone/resize CLI、运行中磁盘快照/Guest 文件系统冻结、CPU/内存/网卡热插拔、SR-IOV、OVS、vhost-user、vDPA、static IP 配置、seed 生成/替换、镜像 URL 下载和开机自启管理。已有 LVM VG 不会被当前版本使用。
 
 专题文档：[架构](docs/architecture.md)、[固定 firmware 与冷挂载](docs/cold-attach.md)、[cloud-init](docs/cloud-init.md)、[Windows](docs/windows.md)、[磁盘热插拔](docs/hotplug.md)、[ZFS](docs/phase9.md)、[恢复机制](docs/phase10.md)。历史阶段文档中的旧限制请结合当前专题和本手册阅读。
+
+## NixOS：为新实例设置默认网桥
+
+```nix
+virtualisation.chadm.defaultBridge = "virbr0";
+```
+
+部署后创建实例可省略 `--net`，自动创建一块 DHCP 网卡，或使用 `--net dhcp`。
+例如（镜像 `ubuntu-test` 已导入）：
+
+```bash
+sudo chadm instance create --name test01 --image ubuntu-test \
+  --boot firmware --cpus 2 --ram 2G --volume root,size=20G
+```
+
+默认网桥必须已存在、为 Linux bridge 且处于 UP 状态，否则创建命令在分配磁盘前报错。
+该选项不创建网桥、不提供 DHCP。显式 `--net bridge=br1` 覆盖默认值。
+已有实例仍使用其自身配置中的网桥，不随默认值变化。
+未配置默认网桥时，省略 `--net` 仍表示无网卡。
+非 NixOS 可在 `/etc/chadm/config.toml` 设置 `default_bridge = "virbr0"`。
+更多部署及测试说明见 [NixOS 文档](docs/nixos.md)。

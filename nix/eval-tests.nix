@@ -15,6 +15,7 @@ let
   base = evaluate { };
   existingBridge = evaluateWith [ { networking.bridges.br0.interfaces = [ "eno1" ]; } ] { };
   custom = evaluate {
+    defaultBridge = "br0";
     dataDir = "/srv/chadm";
     runtimeDir = "/run/chadm-custom";
     repos = {
@@ -34,6 +35,8 @@ let
   disabled = evaluate { enable = false; };
 in
 assert valid base;
+assert base.virtualisation.chadm.defaultBridge == null;
+assert custom.virtualisation.chadm.defaultBridge == "br0";
 assert base.virtualisation.chadm.enableZfs == false;
 assert base.systemd.services.chadm-host-setup.serviceConfig.Type == "oneshot";
 assert !(builtins.hasAttr "chadm-instance@" base.systemd.services);

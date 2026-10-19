@@ -277,6 +277,27 @@ pub fn show(host: &HostConfig, name: &str) -> Result<InstanceInfo> {
 
 pub fn create(host: &HostConfig, options: &CreateOptions) -> Result<InstanceConfig> {
     host.validate()?;
+    let mut options = options.clone();
+    if options.networks.is_empty() {
+        if let Some(bridge) = &host.default_bridge {
+            crate::network::bridge_status(bridge)?;
+            options.networks.push(NetworkSpec {
+                bridge: bridge.clone(),
+                mac: None,
+            });
+        }
+    }
+    for net in &mut options.networks {
+        if net.bridge.is_empty() {
+            let bridge = host.default_bridge.as_ref().ok_or_else(|| {
+                Error::Resource(
+                    "network requires bridge=<name> or a configured default_bridge".into(),
+                )
+            })?;
+            crate::network::bridge_status(bridge)?;
+            net.bridge = bridge.clone();
+        }
+    }
     metadata::validate_name("instance", &options.name)?;
     metadata::validate_name("image", &options.image)?;
     volume::validate_size(options.ram)?;

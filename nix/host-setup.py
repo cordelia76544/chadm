@@ -162,17 +162,18 @@ def setup(settings, config_path=Path("/etc/chadm/config.toml")):
     ensure_dir(config_path.parent)
     desired = {"data_dir": str(safe_path(settings["dataDir"])),
                "runtime_dir": str(safe_path(settings["runtimeDir"])),
-               "cloud_hypervisor": "cloud-hypervisor"}
+               "cloud_hypervisor": "cloud-hypervisor",
+               "default_bridge": settings.get("defaultBridge")}
     ensure_dir(Path(desired["data_dir"]))
     ensure_dir(Path(desired["runtime_dir"]))
     with lock(config_path.parent / ".setup.lock"):
         contents = existing_bytes(config_path)
         current = tomllib.loads(contents.decode()) if contents is not None else None
         if current is not None:
-            if set(current) - {"data_dir", "runtime_dir", "cloud_hypervisor", "firmware"}:
+            if set(current) - {"data_dir", "runtime_dir", "cloud_hypervisor", "firmware", "default_bridge"}:
                 raise SetupError("unknown host config fields; refusing replacement")
             current = {"data_dir": "/var/lib/chadm", "runtime_dir": "/run/chadm",
-                       "cloud_hypervisor": "cloud-hypervisor", **current}
+                       "cloud_hypervisor": "cloud-hypervisor", "default_bridge": None, **current}
             if settings["manageHostConfig"]:
                 changed_directories = any(current[key] != desired[key] for key in ("data_dir", "runtime_dir"))
                 if changed_directories and (populated(current) or populated(desired)):
@@ -216,7 +217,7 @@ def setup(settings, config_path=Path("/etc/chadm/config.toml")):
 
 def encode_host(host):
     # JSON quoted strings are valid TOML basic strings for these ASCII paths.
-    return "".join(f"{key} = {json.dumps(value)}\n" for key, value in host.items()).encode()
+    return "".join(f"{key} = {json.dumps(value)}\n" for key, value in host.items() if value is not None).encode()
 
 
 if __name__ == "__main__":

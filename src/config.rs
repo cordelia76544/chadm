@@ -16,6 +16,7 @@ pub struct HostConfig {
     #[serde(skip_serializing)]
     pub firmware: Option<PathBuf>,
     pub cloud_hypervisor: PathBuf,
+    pub default_bridge: Option<String>,
 }
 
 impl Default for HostConfig {
@@ -24,6 +25,7 @@ impl Default for HostConfig {
             data_dir: "/var/lib/chadm".into(),
             runtime_dir: "/run/chadm".into(),
             firmware: None,
+            default_bridge: None,
             cloud_hypervisor: "cloud-hypervisor".into(),
         }
     }
@@ -74,6 +76,9 @@ impl HostConfig {
     }
 
     pub fn validate(&self) -> Result<()> {
+        if let Some(bridge) = &self.default_bridge {
+            crate::instance_config::bridge_name(bridge)?;
+        }
         for (label, path) in [
             ("data_dir", &self.data_dir),
             ("runtime_dir", &self.runtime_dir),
@@ -165,6 +170,13 @@ mod tests {
             ..HostConfig::default()
         };
         assert!(config.validate().is_err());
+        for name in ["", "../bridge", "bridge-name-too-long", "br 0"] {
+            let config = HostConfig {
+                default_bridge: Some(name.into()),
+                ..HostConfig::default()
+            };
+            assert!(config.validate().is_err());
+        }
         assert!(toml::from_str::<HostConfig>("firmare = '/tmp/fw'").is_err());
     }
 }

@@ -229,7 +229,7 @@ pub struct InstanceCreate {
     pub cmdline: Option<String>,
     #[arg(long = "volume", value_parser = crate::instance::parse_volume)]
     pub volumes: Vec<crate::instance::VolumeSpec>,
-    /// Linux bridge network; DHCP is the default, e.g. bridge=virbr0.
+    /// Linux bridge network; DHCP is the default. Omit bridge= to use the host default.
     #[arg(long = "net", value_parser = crate::instance::parse_network)]
     pub networks: Vec<crate::instance::NetworkSpec>,
 }

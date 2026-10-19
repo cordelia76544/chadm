@@ -40,6 +40,17 @@ class HostSetupTests(unittest.TestCase):
         return subprocess.run([BINARY, "--config", str(self.config), *args],
                               capture_output=True, text=True, check=True).stdout
 
+    def test_default_bridge_is_written_updated_and_removed(self):
+        self.settings["defaultBridge"] = "br0"
+        self.apply()
+        self.assertEqual(tomllib.loads(self.config.read_text())["default_bridge"], "br0")
+        self.settings["defaultBridge"] = "br1"
+        self.apply()
+        self.assertEqual(tomllib.loads(self.config.read_text())["default_bridge"], "br1")
+        self.settings["defaultBridge"] = None
+        self.apply()
+        self.assertNotIn("default_bridge", tomllib.loads(self.config.read_text()))
+
     def test_real_file_repo_idempotence_and_firmware_inode(self):
         self.apply()
         repo = json.loads(self.cli("repo", "show", "local", "--json"))

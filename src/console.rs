@@ -111,7 +111,7 @@ impl Signals {
         let mut guard = Self(Vec::new());
         for number in [1, 2, 3, 15] {
             // SAFETY: process-local Linux signal handler performs only a lock-free atomic store.
-            let previous = unsafe { signal(number, interrupt as usize) };
+            let previous = unsafe { signal(number, interrupt as *const () as usize) };
             if previous == usize::MAX {
                 return Err(io_error(
                     "install signal handler",

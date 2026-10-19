@@ -1023,3 +1023,38 @@ fn windows_direct_boot_fails_before_storage_and_legacy_instances_remain_generic(
     assert!(info.available);
     assert!(!info.config.windows);
 }
+
+#[test]
+fn default_bridge_is_checked_before_storage_and_explicit_network_overrides_it() {
+    let f = Fixture::new();
+    f.prepare();
+    let mut host = f.host.clone();
+    host.default_bridge = Some("ch-missing-br".into());
+    let mut options = CreateOptions::new("defaultnet", "base");
+    let error = instance::create(&host, &options).unwrap_err().to_string();
+    assert!(error.contains("does not exist"), "{error}");
+    assert!(!host.layout().instances.join("defaultnet").exists());
+    assert!(volume::list(&host).unwrap().is_empty());
+    options
+        .networks
+        .push(instance::parse_network("dhcp").unwrap());
+    assert!(instance::create(&host, &options)
+        .unwrap_err()
+        .to_string()
+        .contains("does not exist"));
+    host.default_bridge = Some("lo".into());
+    assert!(instance::create(&host, &options)
+        .unwrap_err()
+        .to_string()
+        .contains("not a Linux bridge"));
+    host.default_bridge = None;
+    assert!(instance::create(&host, &options)
+        .unwrap_err()
+        .to_string()
+        .contains("default_bridge"));
+    // Explicit networks retain metadata-only creation and override the default.
+    host.default_bridge = Some("ch-missing-br".into());
+    options.networks = vec![instance::parse_network("bridge=explicitbr").unwrap()];
+    let created = instance::create(&host, &options).unwrap();
+    assert_eq!(created.network[0].bridge, "explicitbr");
+}

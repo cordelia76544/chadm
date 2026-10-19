@@ -200,7 +200,7 @@ pub fn parse_network(value: &str) -> Result<NetworkSpec> {
         }
     }
     Ok(NetworkSpec {
-        bridge: bridge.ok_or_else(|| Error::Resource("network requires bridge=<name>".into()))?,
+        bridge: bridge.unwrap_or_default(),
         mac,
     })
 }
@@ -409,8 +409,8 @@ mod tests {
         assert_eq!(parse_network("bridge=virbr0").unwrap().bridge, "virbr0");
         let spec = parse_network("bridge=virbr0,mac=52:54:AA:BB:CC:DD,dhcp").unwrap();
         assert_eq!(spec.mac.as_deref(), Some("52:54:aa:bb:cc:dd"));
+        assert!(parse_network("dhcp").unwrap().bridge.is_empty());
         for input in [
-            "dhcp",
             "bridge=virbr0,static",
             "bridge=../x,dhcp",
             "bridge=br0,bridge=br1,dhcp",

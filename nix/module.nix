@@ -14,11 +14,11 @@ let
   };
   firmwareSource = if cfg.firmware.source != null then cfg.firmware.source else fetchedFirmware;
   manifest = pkgs.writeText "chadm-host-settings.json" (builtins.toJSON {
-    inherit (cfg) dataDir runtimeDir manageHostConfig;
+    inherit (cfg) dataDir runtimeDir manageHostConfig defaultBridge;
     inherit repos;
     chadm = "${cfg.package}/bin/chadm";
     systemctl = "${config.systemd.package}/bin/systemctl";
-    firmware = if cfg.firmware.enable then toString firmwareSource else null;
+    firmware = if cfg.firmware.enable then "${firmwareSource}" else null;
   });
 in {
   options.virtualisation.chadm = {
@@ -51,6 +51,11 @@ in {
       type = absolutePath;
       default = "/run/chadm";
       description = "Runtime sockets and ownership records; must be under /run.";
+    };
+    defaultBridge = mkOption {
+      type = types.nullOr (types.strMatching "[A-Za-z0-9_.-]{1,15}");
+      default = null;
+      description = "Existing Linux bridge used when instance create omits --net or --net omits bridge=. Validated at instance creation; does not create the bridge or configure DHCP.";
     };
     manageHostConfig = mkOption {
       type = types.bool;

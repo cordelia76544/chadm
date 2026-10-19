@@ -14,7 +14,7 @@ nix build github:cordelia76544/chadm#chadm -L
 nix run github:cordelia76544/chadm -- --help
 ```
 
-构建会运行 Rust 测试，构建环境中的临时文件系统必须支持 `user.*` 扩展属性（xattr）；运行时 file repo 的文件系统也有同样要求。若测试报 `cannot mark raw payload ownership: Operation not supported`，应检查实际 Nix builder 的构建目录文件系统，而不只是源码所在目录；远程 builder 也需满足此条件。
+构建运行不依赖扩展属性的 Rust 测试，完整测试在 `checks.x86_64-linux.deployment` 的 NixOS VM 中运行。Nix 构建器的 seccomp 过滤会拒绝扩展属性系统调用，单纯更换构建目录无法解决。运行时 file repo 仍必须支持 `user.*` 扩展属性（xattr），用于验证磁盘归属。详见文末的测试说明。
 
 只验证构建、不创建 `result` 链接时，追加 `--no-link`。这些命令只获取软件，不安装 NixOS 服务、固件或配置网络；宿主机部署使用下面的 module。
 
@@ -121,6 +121,7 @@ nix build .#chadm -L
 | `dataDir` | `/var/lib/chadm` | 可写元数据和固定固件目录 |
 | `runtimeDir` | `/run/chadm` | 必须在 `/run/` 下，重启由 tmpfiles 创建 |
 | `manageHostConfig` | `true` | 维护普通的 `/etc/chadm/config.toml`，不管理实例 TOML |
+| `defaultBridge` | `null` | 新实例省略网桥时使用的已有 Linux bridge；创建时检查存在且 UP |
 | `enableZfs` | 声明 ZFS repo 时自动为 true | 包含与 `boot.zfs.package` 配套的用户态工具 |
 | `repos.<name>.driver` | `file` | `file` 或 `zfs` |
 | `repos.<name>.path` | `null` | file repo 的绝对目录 |
@@ -200,7 +201,7 @@ sudo chadm instance create \
 以下验证命令在本地仓库根目录运行；验证 GitHub 版本时可将 `.#` 替换为 `github:cordelia76544/chadm#`：
 
 ```bash
-# 包编译和 Rust 测试。
+# 包编译及不依赖 xattr 的 Rust 测试。
 nix build .#checks.x86_64-linux.package -L
 # NixOS options、合法/非法配置求值。
 nix build .#checks.x86_64-linux.module -L
@@ -232,4 +233,53 @@ nix build github:cordelia76544/chadm#chadm \
   github:cordelia76544/chadm#checks.x86_64-linux.module --no-link -L
 ```
 
-GitHub 源码获取、锁定依赖解析和 `module` 检查通过。`chadm` release 编译完成，但测试阶段为 54 通过、24 失败、2 忽略；24 项失败均报告构建临时文件系统不支持文件归属标记所需的扩展属性（`Operation not supported`）。因此本次包构建退出码为 1，未获得构建通过的结论；完整 NixOS 测试机未运行。需要在支持 xattr 的构建环境重试，不能以关闭测试代替验收。
+GitHub 源码获取、锁定依赖解析和 `module` 检查通过。`chadm` release 编译完成，但测试阶段为 54 通过、24 失败、2 忽略；24 项失败均报告无法设置文件归属标记所需的扩展属性（`Operation not supported`）。因此本次包构建退出码为 1，未获得构建通过的结论；完整 NixOS 测试机未运行。后续已定位为 Nix seccomp 对扩展属性系统调用的限制，修复方案是将依赖扩展属性的测试移入 NixOS VM，见文末。
+
+## 默认实例网桥
+
+```nix
+virtualisation.chadm = {
+  enable = true;
+  defaultBridge = "virbr0";
+};
+```
+
+`defaultBridge` 默认是 `null`，不会自动创建网桥。可以使用已有网桥，或者通过
+`networking.bridges.virbr0.interfaces = [ ];` 声明网桥（这不会提供 DHCP/NAT）。
+部署后 `/etc/chadm/config.toml` 包含 `default_bridge = "virbr0"`。
+若设置 `manageHostConfig = false`，需自己在该文件中设置 `default_bridge`。
+
+创建实例时可以省略整个 `--net`，自动添加一块连接默认网桥的 DHCP 网卡；
+也可使用 `--net dhcp` 或 `--net mac=52:54:00:12:34:56,dhcp`。
+显式 `--net bridge=br1` 优先于默认值，不额外添加默认网卡。
+未配置默认网桥且省略 `--net` 时，仍创建无网卡实例。
+
+使用默认网桥时，创建命令在分配磁盘之前检查它存在、属于 Linux bridge 且处于 UP
+状态，否则返回错误。实际网桥名与 MAC 写入实例 TOML，后续修改主机默认值不改变已有实例。
+Guest 自行使用桥后面的 DHCP 服务，chadm 不提供 DHCP server。
+
+## Nix 构建中的扩展属性测试
+
+Nix 的 [Linux 构建器 seccomp 规则](https://github.com/NixOS/nix/blob/master/src/libstore/linux/build/linux-derivation-builder.cc) 会拒绝扩展属性系统调用，返回 `Operation not supported`。
+file backend 用这些属性确认磁盘归属；生产代码仍严格要求它们，不能降级跳过。
+普通包构建运行不需要扩展属性的测试，并将完整 Rust 测试程序保存到 `tests` output。
+`checks.x86_64-linux.deployment` 在 NixOS VM 中运行全部 Rust 测试程序、主机设置测试
+及默认网桥场景；`checks.x86_64-linux.host-setup` 是同一 VM 检查的别名，需要 KVM。
+
+```bash
+nix build .#checks.x86_64-linux.package .#checks.x86_64-linux.module -L
+nix build .#checks.x86_64-linux.deployment -L
+```
+
+### 当前工作树验证（2026-10-19）
+
+修复后，本地 `chadm` 包与 `checks.x86_64-linux.module` 构建通过；
+`checks.x86_64-linux.deployment` 已实际启动 NixOS 26.05 测试机并以退出码 0 完成。
+VM 执行全部 Rust 测试程序（保留原有需要专门宿主机资源的 ignored 测试）、17 项
+Python 主机配置测试，以及默认网桥的成功创建与缺失失败场景。Rust 测试保留 root
+身份读取服务配置，但移除 `CAP_DAC_OVERRIDE` 和 `CAP_DAC_READ_SEARCH`，确保目录
+权限拒绝写入的断言仍有效。
+
+本机 `cargo test --offline --locked` 为 168 通过、5 忽略；fmt 和 Clippy 检查通过。
+这不包含真实 Cloud Hypervisor Guest 启动或真实 ZFS pool 测试。上述验证针对本地
+工作树；使用 GitHub input 的宿主机需在改动发布后更新锁定 revision 才会获得修复。
