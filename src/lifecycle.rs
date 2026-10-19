@@ -383,6 +383,7 @@ fn checkpoint_context(host: &HostConfig, config: &InstanceConfig) -> Result<Snap
 fn checkpoint_version(host: &HostConfig, config: &InstanceConfig) -> Result<String> {
     let program = crate::command::executable(&host.cloud_hypervisor)
         .ok_or_else(|| error("cloud-hypervisor was not found"))?;
+    let program = crate::command::trusted_executable(&program)?;
     let help = crate::command::network_output(&program, &["--help"]).map_err(error)?;
     if !help.contains("--restore") || !help.contains("memory_restore_mode=") {
         return Err(error(
@@ -390,8 +391,7 @@ fn checkpoint_version(host: &HostConfig, config: &InstanceConfig) -> Result<Stri
         ));
     }
     use std::os::unix::fs::MetadataExt;
-    let file = metadata::open_regular(&program, false)?;
-    let stat = file.metadata().map_err(|e| error(e.to_string()))?;
+    let stat = fs::metadata(&program).map_err(|e| error(e.to_string()))?;
     let version = crate::command::probe(&program, &["--version"]).map_err(error)?;
     let mut signature = format!(
         "{};binary={}:{}:{}:{}:{}",
@@ -919,13 +919,7 @@ pub fn service(action: &str, name: &str) -> Result<()> {
                 ));
             }
             let (program, _) = hypervisor::command_line(&host, &config)?;
-            metadata::directory(
-                program
-                    .parent()
-                    .ok_or_else(|| error("invalid hypervisor executable path"))?,
-                false,
-            )?;
-            metadata::open_regular(&program, false)?;
+            let program = crate::command::trusted_executable(&program)?;
             hypervisor::check_capabilities(&program, config.windows)?;
             metadata::directory(&host.runtime_dir, true)?;
             let dir = host.runtime_dir.join(name);
@@ -965,6 +959,7 @@ pub fn service(action: &str, name: &str) -> Result<()> {
             }
             network::verify_prepared(&config)?;
             let (program, args) = hypervisor::command_line(&host, &config)?;
+            let program = crate::command::trusted_executable(&program)?;
             crate::checkpoint::consume_restore(&host, &config, &invocation)?;
             drop(_lock);
             Err(error(format!(

@@ -283,3 +283,13 @@ Python 主机配置测试，以及默认网桥的成功创建与缺失失败场�
 本机 `cargo test --offline --locked` 为 168 通过、5 忽略；fmt 和 Clippy 检查通过。
 这不包含真实 Cloud Hypervisor Guest 启动或真实 ZFS pool 测试。上述验证针对本地
 工作树；使用 GitHub input 的宿主机需在改动发布后更新锁定 revision 才会获得修复。
+
+### Cloud Hypervisor 可执行文件的归属检查
+
+Nix store 去重后，同一可执行文件可能有多个硬链接。启动准备、执行和挂起/恢复版本
+检查使用部署文件规则：验证 root 所有权、各级目录和符号链接、禁止 group/other 写入，
+并要求目标为可执行的普通文件。允许符合这些规则的 Nix store 硬链接。
+磁盘、运行状态和元数据仍使用禁止硬链接的严格归属规则。
+
+旧版本可能在启动时将 Cloud Hypervisor 报为 `unsafe managed file`。更新 chadm 后
+重新部署并重试 `chadm instance start <name>`；不需要修改 Nix store 中二进制的权限。

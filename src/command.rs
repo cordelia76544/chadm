@@ -236,6 +236,17 @@ pub(crate) fn run_utility(
     }
 }
 
+/// Deployed executables may be symlinks or hard-linked Nix store objects.
+/// Mutable resource ownership checks must not be used for these files.
+pub(crate) fn trusted_executable(path: &Path) -> crate::error::Result<PathBuf> {
+    use std::os::unix::fs::MetadataExt;
+    let root = Path::new("/");
+    let root_uid = fs::metadata(root)
+        .map_err(|e| crate::metadata::io_error("inspect root ownership", root, e))?
+        .uid();
+    trusted_file(path, root, root_uid, true)
+}
+
 /// Resolve every link and validate every ancestor before reading deployment artifacts.
 pub(crate) fn trusted_file(
     path: &Path,
@@ -394,6 +405,12 @@ mod tests {
     }
 
     #[test]
+    fn trusted_executable_accepts_fixed_system_tool() {
+        let path = trusted_executable(Path::new("/bin/echo")).unwrap();
+        assert_eq!(path, fs::canonicalize("/bin/echo").unwrap());
+    }
+
+    #[test]
     fn deployment_links_allow_readonly_hardlinks_but_validate_every_ancestor() {
         use std::os::unix::fs::{symlink, DirBuilderExt};
         let root = std::env::temp_dir().join(format!(
@@ -417,6 +434,17 @@ mod tests {
         assert_eq!(resolve("template").unwrap(), file);
         assert!(crate::metadata::open_regular(&file, false).is_err());
         assert!(trusted_file(&file, &root, crate::metadata::uid(), true).is_err());
+        // Executable deployment files also allow readonly hardlinks (Nix store
+        // deduplication), while mutable metadata continues rejecting aliases.
+        fs::set_permissions(&file, fs::Permissions::from_mode(0o555)).unwrap();
+        assert_eq!(
+            trusted_file(&root.join("template"), &root, crate::metadata::uid(), true).unwrap(),
+            file
+        );
+        assert!(crate::metadata::open_regular(&file, false).is_err());
+        fs::set_permissions(&file, fs::Permissions::from_mode(0o575)).unwrap();
+        assert!(trusted_file(&file, &root, crate::metadata::uid(), true).is_err());
+        fs::set_permissions(&file, fs::Permissions::from_mode(0o555)).unwrap();
         // A root-controlled alias must not skip an unsafe intermediate link.
         fs::DirBuilder::new()
             .mode(0o755)
