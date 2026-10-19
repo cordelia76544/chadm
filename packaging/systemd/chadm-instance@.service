@@ -1,0 +1,26 @@
+# Managed by chadm. One shared template; VM configuration remains in instance TOML.
+[Unit]
+Description=chadm Cloud Hypervisor instance %i
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=root
+Group=root
+UMask=0077
+ExecStartPre=/usr/local/bin/chadm __service prepare %i
+ExecStart=/usr/local/bin/chadm __service run %i
+ExecStartPost=/usr/local/bin/chadm __service ready %i
+ExecStopPost=/usr/local/bin/chadm __service cleanup %i
+Restart=no
+KillMode=control-group
+KillSignal=SIGKILL
+# Disk-backed RAM restore may take minutes; ordinary boot still has a short helper deadline.
+TimeoutStartSec=1900
+TimeoutStopSec=15
+StandardInput=null
+StandardOutput=journal
+StandardError=journal
+
+# No [Install]: automatic boot startup is outside Phase 7.

@@ -1,0 +1,9 @@
+/target/
+/result
+/result-*
+__pycache__/
+/CLOUDHV.fd
+# Existing local guest images are not source code.
+/*.raw
+/*.img
+
