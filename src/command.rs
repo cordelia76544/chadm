@@ -57,7 +57,7 @@ fn probe_with_limit(
         .env("LC_ALL", "C")
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
-        .stderr(Stdio::null())
+        .stderr(Stdio::piped())
         .spawn()
         .map_err(|error| format!("cannot execute {program:?}: {error}"))?;
     let stdout = match child.stdout.take() {
@@ -68,6 +68,36 @@ fn probe_with_limit(
             return Err("cannot capture command output".into());
         }
     };
+    let Some(mut stderr) = child.stderr.take() else {
+        let _ = child.kill();
+        let _ = child.wait();
+        return Err("cannot capture command diagnostics".into());
+    };
+    let (diagnostic_sender, diagnostic_receiver) = mpsc::channel();
+    let diagnostics = thread::Builder::new()
+        .name("chadm-probe-stderr".into())
+        .spawn(move || {
+            let mut captured = Vec::new();
+            let mut buffer = [0u8; 4096];
+            loop {
+                match stderr.read(&mut buffer) {
+                    Ok(0) => break,
+                    Ok(count) => {
+                        // Keep draining after the limit: stderr must not block the child.
+                        let keep = count.min(8192usize.saturating_sub(captured.len()));
+                        captured.extend_from_slice(&buffer[..keep]);
+                    }
+                    Err(error) if error.kind() == std::io::ErrorKind::Interrupted => (),
+                    Err(_) => break,
+                }
+            }
+            let _ = diagnostic_sender.send(captured);
+        });
+    if let Err(error) = diagnostics {
+        let _ = child.kill();
+        let _ = child.wait();
+        return Err(format!("cannot capture command diagnostics: {error}"));
+    }
     let (sender, receiver) = mpsc::channel();
     let reader = thread::Builder::new()
         .name("chadm-probe-output".into())
@@ -86,7 +116,19 @@ fn probe_with_limit(
         match child.try_wait() {
             Ok(Some(status)) => {
                 if !status.success() {
-                    return Err(format!("{program:?} exited with {status}"));
+                    let detail = match diagnostic_receiver
+                        .recv_timeout(deadline.saturating_duration_since(Instant::now()))
+                    {
+                        Ok(bytes) => String::from_utf8_lossy(&bytes)
+                            .chars()
+                            .filter(|c| !c.is_control() || *c == '\n')
+                            .collect::<String>(),
+                        Err(_) => "command diagnostics unavailable before deadline".into(),
+                    };
+                    return Err(format!(
+                        "{program:?} exited with {status}: {}",
+                        detail.trim()
+                    ));
                 }
                 let bytes = receiver
                     .recv_timeout(deadline.saturating_duration_since(Instant::now()))
@@ -305,6 +347,17 @@ mod tests {
                 .unwrap_err()
                 .contains("timed out")
         );
+    }
+
+    #[test]
+    fn query_failure_keeps_bounded_stderr_without_deadlocking() {
+        let missing = "/nonexistent-chadm-probe-diagnostics";
+        let args = vec![missing; 1024];
+        let error =
+            probe_with_timeout(Path::new("/bin/ls"), &args, Duration::from_secs(5)).unwrap_err();
+        assert!(error.contains("exited with"), "{error}");
+        assert!(error.contains(missing), "{error}");
+        assert!(error.len() < 9000);
     }
 
     #[test]

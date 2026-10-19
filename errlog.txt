@@ -1,0 +1,326 @@
+Running phase: unpackPhase
+@nix { "action": "setPhase", "phase": "unpackPhase" }
+unpacking source archive /nix/store/6jsn0w0zww8b9xwgq2n1q6j8c89g8gnn-source
+source root is source
+Executing cargoSetupPostUnpackHook
+Finished cargoSetupPostUnpackHook
+Running phase: patchPhase
+@nix { "action": "setPhase", "phase": "patchPhase" }
+Executing cargoSetupPostPatchHook
+Validating consistency between /build/source/Cargo.lock and /build/cargo-vendor-dir/Cargo.lock
+Finished cargoSetupPostPatchHook
+Running phase: updateAutotoolsGnuConfigScriptsPhase
+@nix { "action": "setPhase", "phase": "updateAutotoolsGnuConfigScriptsPhase" }
+Running phase: configurePhase
+@nix { "action": "setPhase", "phase": "configurePhase" }
+Running phase: buildPhase
+@nix { "action": "setPhase", "phase": "buildPhase" }
+Executing cargoBuildHook
+cargoBuildHook flags: -j 20 --target x86_64-unknown-linux-gnu --offline --profile release
+[1m[92m   Compiling[0m proc-macro2 v1.0.107
+[1m[92m   Compiling[0m quote v1.0.47
+[1m[92m   Compiling[0m unicode-ident v1.0.26
+[1m[92m   Compiling[0m serde_core v1.0.229
+[1m[92m   Compiling[0m serde v1.0.229
+[1m[92m   Compiling[0m utf8parse v0.2.2
+[1m[92m   Compiling[0m anstyle v1.0.14
+[1m[92m   Compiling[0m anstyle-query v1.1.5
+[1m[92m   Compiling[0m is_terminal_polyfill v1.70.2
+[1m[92m   Compiling[0m equivalent v1.0.2
+[1m[92m   Compiling[0m hashbrown v0.17.1
+[1m[92m   Compiling[0m colorchoice v1.0.5
+[1m[92m   Compiling[0m thiserror v2.0.21
+[1m[92m   Compiling[0m toml_write v0.1.2
+[1m[92m   Compiling[0m heck v0.5.0
+[1m[92m   Compiling[0m clap_lex v1.1.1
+[1m[92m   Compiling[0m strsim v0.11.1
+[1m[92m   Compiling[0m winnow v0.7.15
+[1m[92m   Compiling[0m anstyle-parse v1.0.0
+[1m[92m   Compiling[0m anstream v1.0.0
+[1m[92m   Compiling[0m clap_builder v4.6.7
+[1m[92m   Compiling[0m indexmap v2.14.2
+[1m[92m   Compiling[0m syn v3.0.6
+[1m[92m   Compiling[0m serde_derive v1.0.229
+[1m[92m   Compiling[0m thiserror-impl v2.0.21
+[1m[92m   Compiling[0m clap_derive v4.6.7
+[1m[92m   Compiling[0m clap v4.6.7
+[1m[92m   Compiling[0m serde_spanned v0.6.9
+[1m[92m   Compiling[0m toml_datetime v0.6.11
+[1m[92m   Compiling[0m toml_edit v0.22.27
+[1m[92m   Compiling[0m toml v0.8.23
+[1m[92m   Compiling[0m chadm v0.1.0 (/build/source)
+[1m[33mwarning[0m[1m: direct cast of function item into an integer[0m
+   [1m[94m--> [0msrc/console.rs:114:62
+    [1m[94m|[0m
+[1m[94m114[0m [1m[94m|[0m             let previous = unsafe { signal(number, interrupt as usize) };
+    [1m[94m|[0m                                                              [1m[33m^^^^^^^^[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: `#[warn(function_casts_as_integer)]` on by default
+[1m[96mhelp[0m: first cast to a pointer `as *const ()`
+    [1m[94m|[0m
+[1m[94m114[0m [1m[94m| [0m            let previous = unsafe { signal(number, interrupt[92m as *const ()[0m as usize) };
+    [1m[94m|[0m                                                              [92m++++++++++++[0m
+
+[1m[33mwarning[0m: `chadm` (lib) generated 1 warning (run `cargo fix --lib -p chadm` to apply 1 suggestion)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 59.87s
+Executing cargoInstallPostBuildHook
+Finished cargoInstallPostBuildHook
+Finished cargoBuildHook
+buildPhase completed in 1 minutes 0 seconds
+Running phase: checkPhase
+@nix { "action": "setPhase", "phase": "checkPhase" }
+Executing cargoCheckHook
+cargoCheckHook flags: -j 20 --profile release --target x86_64-unknown-linux-gnu --offline --
+[1m[33mwarning[0m[1m: direct cast of function item into an integer[0m
+   [1m[94m--> [0msrc/console.rs:114:62
+    [1m[94m|[0m
+[1m[94m114[0m [1m[94m|[0m             let previous = unsafe { signal(number, interrupt as usize) };
+    [1m[94m|[0m                                                              [1m[33m^^^^^^^^[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: `#[warn(function_casts_as_integer)]` on by default
+[1m[96mhelp[0m: first cast to a pointer `as *const ()`
+    [1m[94m|[0m
+[1m[94m114[0m [1m[94m| [0m            let previous = unsafe { signal(number, interrupt[92m as *const ()[0m as usize) };
+    [1m[94m|[0m                                                              [92m++++++++++++[0m
+
+[1m[92m   Compiling[0m chadm v0.1.0 (/build/source)
+[1m[33mwarning[0m: `chadm` (lib) generated 1 warning (run `cargo fix --lib -p chadm` to apply 1 suggestion)
+[1m[33mwarning[0m: `chadm` (lib test) generated 1 warning (1 duplicate)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 35.19s
+[1m[92m     Running[0m unittests src/lib.rs (target/x86_64-unknown-linux-gnu/release/deps/chadm-d0cd696cdf5645fc)
+
+running 80 tests
+test console::tests::serial_relay_preserves_bytes_and_detaches_without_guest_escape ... ignored, requires AF_UNIX sockets; sandbox blocks socket creation
+test console::tests::escape_is_local_and_guest_control_keys_are_preserved ... ok
+test command::tests::rejects_relative_executable_paths ... ok
+test api_json::tests::rejects_duplicates_bad_numbers_escapes_depth_and_trailing_data ... ok
+test console::tests::terminal_raw_mode_restores_all_settings_on_success_and_error ... ok
+test doctor::tests::warnings_do_not_fail_doctor ... ok
+test command::tests::deployment_links_allow_readonly_hardlinks_but_validate_every_ancestor ... ok
+test config::tests::rejects_unsafe_paths_and_unknown_keys ... ok
+test config::tests::defaults_and_roundtrip ... ok
+test hypervisor::tests::api_headers_reject_errors_duplicate_lengths_and_oversized_protocol_variants ... ok
+test hypervisor::stream_tests::hotplug_request_has_exact_json_body_and_byte_length ... ok
+test hypervisor::tests::unix_http_validates_peer_and_reads_split_headers_without_waiting_for_eof ... ignored, requires AF_UNIX sockets; sandbox blocks socket creation
+test hypervisor::stream_tests::fragmented_http_requests_and_premature_or_oversized_responses ... ok
+test hypervisor::tests::parses_only_top_level_vm_state_with_bounded_json ... ok
+test hypervisor::tests::windows_cpu_options_must_be_advertised_before_starting ... ok
+test hotplug::tests::legacy_disk_id_and_escaped_paths_are_verified_structurally ... ok
+test image_input::tests::checks_headers_without_following_external_references ... ok
+test instance_config::tests::strict_volume_and_network_input ... ok
+test lifecycle::tests::first_start_skips_reset_failed_but_failed_restart_resets_before_start ... ok
+test checkpoint::tests::partial_suspend_and_partial_delete_keep_reservations_until_explicit_cleanup ... FAILED
+test checkpoint::tests::restore_is_consumed_before_exec_and_cannot_be_replayed_after_a_crash ... FAILED
+test checkpoint::tests::saved_state_blocks_cold_boot_edits_and_implicit_discard ... FAILED
+test hotplug::tests::detach_waits_for_tree_eject_before_releasing_volume ... FAILED
+test hotplug::tests::foreign_identity_paused_vm_and_changed_invocation_cannot_mutate ... FAILED
+test hotplug::tests::corrupted_intent_and_root_or_multiple_disk_edits_are_rejected ... FAILED
+test lifecycle::tests::hotplug_requires_stable_running_systemd_without_jobs_or_helpers ... ok
+test command::tests::bounded_output_is_rejected_instead_of_silently_truncated ... ok
+test hotplug::tests::attach_persists_only_after_confirmation_and_reserves_until_then ... FAILED
+test lifecycle::tests::start_submission_rechecks_helpers_jobs_and_query_failure_before_any_action ... ok
+test hotplug::tests::lost_api_reply_keeps_intent_and_retry_confirms_without_duplicate_add ... FAILED
+test network::tests::all_nics_preflight_and_foreign_devices_preserved ... ok
+test network::tests::bridge_validation_and_invalid_names_fail_before_mutation ... ok
+test network::tests::creates_bridge_up_then_cleans_reverse_and_cleanup_is_idempotent ... ok
+test network::tests::malformed_config_cannot_mutate_network_or_invent_address ... ok
+test network::tests::parses_multiple_ips_stale_and_filters_other_macs_ports_and_invalid_neighbors ... ok
+test network::tests::rejects_old_generation_wrong_kind_missing_marker_and_incompatible_flags ... ok
+test network::tests::rollback_all_new_taps_after_second_nic_failure ... ok
+test network::tests::rollback_preserves_interface_replaced_during_failure ... ok
+test network::tests::stale_partial_taps_can_be_cleaned_without_the_original_bridge ... ok
+test network::tests::sysfs_parser_reads_bridge_tap_and_distinguishes_missing_from_invalid ... ok
+test repo::tests::json_escapes_quotes_backslashes_and_control_characters ... ok
+test repo::tests::names_reject_traversal_injection_and_invalid_lengths ... ok
+test repo::tests::zfs_repo_guids_round_trip_and_read_legacy_metadata ... ok
+test serde_guid::tests::full_unsigned_range_round_trips_as_decimal_strings ... ok
+test serde_guid::tests::invalid_guids_are_rejected_without_wrapping_or_truncation ... ok
+test checkpoint::tests::saved_memory_tamper_and_unknown_files_are_never_restored_or_unlinked ... FAILED
+test serde_guid::tests::legacy_integers_and_absent_guids_remain_readable ... ok
+test hotplug::tests::stopped_recovery_preserves_published_config_and_releases_pending_attach ... FAILED
+test storage::zfs::tests::dataset_names_never_address_pool_roots_snapshots_or_shell_options ... ok
+test storage::zfs::tests::kernel_mount_source_must_match_zfs_dataset_and_writable_mountpoint ... ok
+test storage::zfs::tests::installed_zfs_path_is_checked_without_executing_it_or_accessing_the_pool ... ok
+test storage::zfs::tests::namespace_requires_both_container_guids_and_expected_mount_policy ... ok
+test storage::zfs::tests::executable_resolution_rejects_writable_paths_bad_targets_and_link_loops ... ok
+test storage::zfs::tests::native_guid_local_markers_and_volume_id_gate_all_destruction ... ok
+test lifecycle::tests::graceful_shutdown_waits_for_exit_and_never_calls_force_stop ... FAILED
+test storage::zfs::tests::native_snapshot_actions_require_guid_local_owner_and_latest_rollback_without_force ... ok
+test storage::zfs::tests::properties_require_exact_dataset_and_complete_unambiguous_fields ... ok
+test systemd::tests::parses_unit_properties_and_refuses_bad_or_ambiguous_responses ... ok
+test storage::zfs::tests::snapshots_bookmarks_children_and_query_failure_are_never_destroyed_recursively ... ok
+test systemd::tests::shared_template_and_names_are_constrained ... ok
+test systemd::tests::terminal_requires_no_helper_or_job_and_empty_cgroup_is_strict ... ok
+test volume::tests::sizes_are_binary_and_checked ... ok
+test volume::tests::zvol_guid_round_trips_and_reads_legacy_metadata ... ok
+test storage::zfs::tests::packaged_zfs_and_merged_usr_symlinks_resolve_to_the_checked_binary ... ok
+test lifecycle::tests::argv_resolves_raw_volumes_firmware_and_direct_boot_without_shell_splitting ... FAILED
+test lifecycle::tests::graceful_api_failure_preserves_vm_runtime_and_never_forces_stop ... FAILED
+test instance::tests::rollback_keeps_intent_and_payloads_when_ownership_changes ... FAILED
+test lifecycle::tests::cold_disk_edits_reject_active_transitioning_helpers_and_pending_jobs ... FAILED
+test instance::tests::abort_after_disk_creation_rolls_back_only_owned_volumes ... FAILED
+test lifecycle::tests::helpers_reject_foreign_pid_and_invocation_and_force_confirms_cleanup ... FAILED
+test lifecycle::tests::graceful_timeout_preserves_vm_and_force_works_without_api ... FAILED
+test lifecycle::tests::recovery_rechecks_systemd_before_deleting_any_artifact ... FAILED
+test lifecycle::tests::runtime_cleanup_preserves_unknown_entries_and_other_invocations ... FAILED
+test lifecycle::tests::registration_and_operation_locks_protect_generation_and_metadata_deletion ... FAILED
+test lifecycle::tests::state_uses_systemd_and_authenticated_api_and_does_not_guess_on_query_failure ... FAILED
+test lifecycle::tests::recovery_preserves_runtime_for_live_helpers_jobs_bad_owners_and_unknown_files ... FAILED
+test lifecycle::tests::stale_recovery_is_idempotent_and_allows_a_previous_invocation ... FAILED
+test console::tests::terminal_restores_after_external_sigterm ... ok
+test command::tests::captures_failure_and_timeout ... ok
+test command::tests::image_utility_reports_failure_and_timeout ... ok
+
+failures:
+
+---- checkpoint::tests::partial_suspend_and_partial_delete_keep_reservations_until_explicit_cleanup stdout ----
+
+thread 'checkpoint::tests::partial_suspend_and_partial_delete_keep_reservations_until_explicit_cleanup' (1403) panicked at src/checkpoint.rs:778:67:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- checkpoint::tests::restore_is_consumed_before_exec_and_cannot_be_replayed_after_a_crash stdout ----
+
+thread 'checkpoint::tests::restore_is_consumed_before_exec_and_cannot_be_replayed_after_a_crash' (1404) panicked at src/checkpoint.rs:778:67:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- checkpoint::tests::saved_state_blocks_cold_boot_edits_and_implicit_discard stdout ----
+
+thread 'checkpoint::tests::saved_state_blocks_cold_boot_edits_and_implicit_discard' (1406) panicked at src/checkpoint.rs:778:67:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- hotplug::tests::detach_waits_for_tree_eject_before_releasing_volume stdout ----
+
+thread 'hotplug::tests::detach_waits_for_tree_eject_before_releasing_volume' (1427) panicked at src/hotplug.rs:508:60:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- hotplug::tests::foreign_identity_paused_vm_and_changed_invocation_cannot_mutate stdout ----
+
+thread 'hotplug::tests::foreign_identity_paused_vm_and_changed_invocation_cannot_mutate' (1428) panicked at src/hotplug.rs:508:60:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- hotplug::tests::corrupted_intent_and_root_or_multiple_disk_edits_are_rejected stdout ----
+
+thread 'hotplug::tests::corrupted_intent_and_root_or_multiple_disk_edits_are_rejected' (1423) panicked at src/hotplug.rs:508:60:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- hotplug::tests::attach_persists_only_after_confirmation_and_reserves_until_then stdout ----
+
+thread 'hotplug::tests::attach_persists_only_after_confirmation_and_reserves_until_then' (1421) panicked at src/hotplug.rs:508:60:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- hotplug::tests::lost_api_reply_keeps_intent_and_retry_confirms_without_duplicate_add stdout ----
+
+thread 'hotplug::tests::lost_api_reply_keeps_intent_and_retry_confirms_without_duplicate_add' (1430) panicked at src/hotplug.rs:508:60:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- checkpoint::tests::saved_memory_tamper_and_unknown_files_are_never_restored_or_unlinked stdout ----
+
+thread 'checkpoint::tests::saved_memory_tamper_and_unknown_files_are_never_restored_or_unlinked' (1405) panicked at src/checkpoint.rs:778:67:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- hotplug::tests::stopped_recovery_preserves_published_config_and_releases_pending_attach stdout ----
+
+thread 'hotplug::tests::stopped_recovery_preserves_published_config_and_releases_pending_attach' (1431) panicked at src/hotplug.rs:508:60:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::graceful_shutdown_waits_for_exit_and_never_calls_force_stop stdout ----
+
+thread 'lifecycle::tests::graceful_shutdown_waits_for_exit_and_never_calls_force_stop' (1446) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::argv_resolves_raw_volumes_firmware_and_direct_boot_without_shell_splitting stdout ----
+
+thread 'lifecycle::tests::argv_resolves_raw_volumes_firmware_and_direct_boot_without_shell_splitting' (1442) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::graceful_api_failure_preserves_vm_runtime_and_never_forces_stop stdout ----
+
+thread 'lifecycle::tests::graceful_api_failure_preserves_vm_runtime_and_never_forces_stop' (1445) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- instance::tests::rollback_keeps_intent_and_payloads_when_ownership_changes stdout ----
+
+thread 'instance::tests::rollback_keeps_intent_and_payloads_when_ownership_changes' (1440) panicked at src/instance.rs:838:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::cold_disk_edits_reject_active_transitioning_helpers_and_pending_jobs stdout ----
+
+thread 'lifecycle::tests::cold_disk_edits_reject_active_transitioning_helpers_and_pending_jobs' (1443) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- instance::tests::abort_after_disk_creation_rolls_back_only_owned_volumes stdout ----
+
+thread 'instance::tests::abort_after_disk_creation_rolls_back_only_owned_volumes' (1439) panicked at src/instance.rs:838:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::helpers_reject_foreign_pid_and_invocation_and_force_confirms_cleanup stdout ----
+
+thread 'lifecycle::tests::helpers_reject_foreign_pid_and_invocation_and_force_confirms_cleanup' (1448) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::graceful_timeout_preserves_vm_and_force_works_without_api stdout ----
+
+thread 'lifecycle::tests::graceful_timeout_preserves_vm_and_force_works_without_api' (1447) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::recovery_rechecks_systemd_before_deleting_any_artifact stdout ----
+
+thread 'lifecycle::tests::recovery_rechecks_systemd_before_deleting_any_artifact' (1451) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::runtime_cleanup_preserves_unknown_entries_and_other_invocations stdout ----
+
+thread 'lifecycle::tests::runtime_cleanup_preserves_unknown_entries_and_other_invocations' (1453) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::registration_and_operation_locks_protect_generation_and_metadata_deletion stdout ----
+
+thread 'lifecycle::tests::registration_and_operation_locks_protect_generation_and_metadata_deletion' (1452) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::state_uses_systemd_and_authenticated_api_and_does_not_guess_on_query_failure stdout ----
+
+thread 'lifecycle::tests::state_uses_systemd_and_authenticated_api_and_does_not_guess_on_query_failure' (1456) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::recovery_preserves_runtime_for_live_helpers_jobs_bad_owners_and_unknown_files stdout ----
+
+thread 'lifecycle::tests::recovery_preserves_runtime_for_live_helpers_jobs_bad_owners_and_unknown_files' (1450) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+---- lifecycle::tests::stale_recovery_is_idempotent_and_allows_a_previous_invocation stdout ----
+
+thread 'lifecycle::tests::stale_recovery_is_idempotent_and_allows_a_previous_invocation' (1454) panicked at src/lifecycle.rs:1089:59:
+called `Result::unwrap()` on an `Err` value: Resource("cannot mark raw payload ownership: Operation not supported (os error 95); file backend requires user extended attributes")
+
+
+failures:
+    checkpoint::tests::partial_suspend_and_partial_delete_keep_reservations_until_explicit_cleanup
+    checkpoint::tests::restore_is_consumed_before_exec_and_cannot_be_replayed_after_a_crash
+    checkpoint::tests::saved_memory_tamper_and_unknown_files_are_never_restored_or_unlinked
+    checkpoint::tests::saved_state_blocks_cold_boot_edits_and_implicit_discard
+    hotplug::tests::attach_persists_only_after_confirmation_and_reserves_until_then
+    hotplug::tests::corrupted_intent_and_root_or_multiple_disk_edits_are_rejected
+    hotplug::tests::detach_waits_for_tree_eject_before_releasing_volume
+    hotplug::tests::foreign_identity_paused_vm_and_changed_invocation_cannot_mutate
+    hotplug::tests::lost_api_reply_keeps_intent_and_retry_confirms_without_duplicate_add
+    hotplug::tests::stopped_recovery_preserves_published_config_and_releases_pending_attach
+    instance::tests::abort_after_disk_creation_rolls_back_only_owned_volumes
+    instance::tests::rollback_keeps_intent_and_payloads_when_ownership_changes
+    lifecycle::tests::argv_resolves_raw_volumes_firmware_and_direct_boot_without_shell_splitting
+    lifecycle::tests::cold_disk_edits_reject_active_transitioning_helpers_and_pending_jobs
+    lifecycle::tests::graceful_api_failure_preserves_vm_runtime_and_never_forces_stop
+    lifecycle::tests::graceful_shutdown_waits_for_exit_and_never_calls_force_stop
+    lifecycle::tests::graceful_timeout_preserves_vm_and_force_works_without_api
+    lifecycle::tests::helpers_reject_foreign_pid_and_invocation_and_force_confirms_cleanup
+    lifecycle::tests::recovery_preserves_runtime_for_live_helpers_jobs_bad_owners_and_unknown_files
+    lifecycle::tests::recovery_rechecks_systemd_before_deleting_any_artifact
+    lifecycle::tests::registration_and_operation_locks_protect_generation_and_metadata_deletion
+    lifecycle::tests::runtime_cleanup_preserves_unknown_entries_and_other_invocations
+    lifecycle::tests::stale_recovery_is_idempotent_and_allows_a_previous_invocation
+    lifecycle::tests::state_uses_systemd_and_authenticated_api_and_does_not_guess_on_query_failure
+
+test result: FAILED. 54 passed; 24 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+[1m[91merror[0m: test failed, to rerun pass `--lib`

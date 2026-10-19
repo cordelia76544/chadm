@@ -87,7 +87,7 @@ impl Commands for System {
         {
             let refs: Vec<_> = args.iter().map(String::as_str).collect();
             command::network_output(&program, &refs)
-                .map_err(|e| error(format!("cannot query ZFS: {e}")))
+                .map_err(|e| error(format!("cannot query ZFS with arguments {args:?}: {e}")))
         } else {
             require_root()?;
             let args: Vec<_> = args.iter().map(Into::into).collect();
